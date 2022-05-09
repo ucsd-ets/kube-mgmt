@@ -1,0 +1,15 @@
+# Grant OPA/kube-mgmt read-only access to resources. This lets kube-mgmt
+# replicate resources into OPA so they can be used in policies.
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: {{ template "opa.name" . }}
+    chart: {{ template "opa.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ .Values.opaViewer.name}} 
+roleRef:
+{{ toYaml .Values.opaViewer.roleRef | indent 4 }}
+subjects:
+{{ toYaml .Values.opaViewer.subjects | indent 4 }}

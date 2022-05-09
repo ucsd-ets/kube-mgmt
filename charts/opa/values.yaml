@@ -52,36 +52,72 @@ bootstrapPolicies: {}
 
 # Admission controller configuration.
 admissionController:
-  enabled: false
+  mutating:
+    enabled: false
 
-  # To enforce mutating policies, change to MutatingWebhookConfiguration.
-  kind: ValidatingWebhookConfiguration
+    # To enforce mutating policies, change to MutatingWebhookConfiguration.
+    kind: MutatingWebhookConfiguration
 
-  # To set annotations on all admissionController resources (Secret/Certificate/Issuer/AdmissionController)
-  # annotations:
-  #   example: value
+    # To set annotations on all admissionController resources (Secret/Certificate/Issuer/AdmissionController)
+    # annotations:
+    #   example: value
 
-  # To _fail closed_ on failures, change to Fail. During initial testing, we
-  # recommend leaving the failure policy as Ignore.
-  failurePolicy: Ignore
+    # To _fail closed_ on failures, change to Fail. During initial testing, we
+    # recommend leaving the failure policy as Ignore.
+    failurePolicy: Ignore
 
-  # Adds a namespace selector to the admission controller webhook
-  namespaceSelector:
-    matchExpressions:
-      - {key: openpolicyagent.org/webhook, operator: NotIn, values: [ignore]}
+    # Adds a namespace selector to the admission controller webhook
+    namespaceSelector:
+      matchExpressions:
+        - {key: openpolicyagent.org/webhook, operator: NotIn, values: [ignore]}
 
-  # SideEffectClass for the webhook, setting to NoneOnDryRun enables dry-run.
-  # Only None and NoneOnDryRun are permitted for admissionregistration.k8s.io/v1.
-  sideEffect: None
+    # SideEffectClass for the webhook, setting to NoneOnDryRun enables dry-run.
+    # Only None and NoneOnDryRun are permitted for admissionregistration.k8s.io/v1.
+    sideEffect: None
 
-  # To restrict the kinds of operations and resources that are subject to OPA
-  # policy checks, see the settings below. By default, all resources and
-  # operations are subject to OPA policy checks.
-  rules:
-    - operations: ["*"]
-      apiGroups: ["*"]
-      apiVersions: ["*"]
-      resources: ["*"]
+    # To restrict the kinds of operations and resources that are subject to OPA
+    # policy checks, see the settings below. By default, all resources and
+    # operations are subject to OPA policy checks.
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["*"]
+        apiVersions: ["*"]
+        resources: ["*"]
+        scope: "*"
+
+  validating:
+  
+    enabled: false
+
+    # To enforce mutating policies, change to MutatingWebhookConfiguration.
+    kind: ValidatingWebhookConfiguration
+
+    # To set annotations on all admissionController resources (Secret/Certificate/Issuer/AdmissionController)
+    # annotations:
+    #   example: value
+
+    # To _fail closed_ on failures, change to Fail. During initial testing, we
+    # recommend leaving the failure policy as Ignore.
+    failurePolicy: Ignore
+
+    # Adds a namespace selector to the admission controller webhook
+    namespaceSelector:
+      matchExpressions:
+        - {key: openpolicyagent.org/webhook, operator: NotIn, values: [ignore]}
+
+    # SideEffectClass for the webhook, setting to NoneOnDryRun enables dry-run.
+    # Only None and NoneOnDryRun are permitted for admissionregistration.k8s.io/v1.
+    sideEffect: None
+
+    # To restrict the kinds of operations and resources that are subject to OPA
+    # policy checks, see the settings below. By default, all resources and
+    # operations are subject to OPA policy checks.
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["*"]
+        apiVersions: ["*"]
+        resources: ["*"]
+        scope: "*"
 
 # The helm Chart will automatically generate a CA and server certificate for
 # the OPA. If you want to supply your own certificates, set the field below to
@@ -94,8 +130,8 @@ admissionController:
 #
 # If the common name is not set correctly, the apiserver will refuse to
 # communicate with the OPA.
-generateCerts: true
-CA: ""
+generateCerts: false
+CA: "$(cat ca.crt)"
 cert: ""
 key: ""
 
@@ -109,7 +145,7 @@ podDisruptionBudget:
 authz:
   # Disable if you don't want authorization.
   # Mostly useful for debugging.
-  enabled: true
+  enabled: false
 
 # Use hostNetwork setting on OPA pod
 hostNetwork:
@@ -129,10 +165,17 @@ imagePullSecrets: []
 # and livenessProbe
 port: 443
 
-extraArgs: []
+extraArgs: [
+  "--set=decision_logs.console=true"
+]
 
 # Extra environment variables to be loaded into the OPA container
-extraEnv: []
+extraEnv: [
+  "- name: AWSED_API_KEY", 
+  "  value: AWSEd api_key=clpecHRWI1d3NDNCX3NYKw",
+  "- name: AWSED_URL",
+  "  value: https://awsed.ucsd.edu"
+  ]
 
 mgmt:
   enabled: false
@@ -143,7 +186,14 @@ mgmt:
   port: 8181
   extraArgs: []
   extraEnv: []
-  resources: {}
+  resources: {
+    requests:
+      cpu: 2
+      memory: 8Gi
+    limits:
+      cpu: 4
+      memory: 16Gi
+  }
   data:
     enabled: false
   configmapPolicies:
@@ -155,9 +205,9 @@ mgmt:
   replicate:
 # NOTE IF you use these, remember to update the RBAC rules below to allow
 #      permissions to replicate these things
-    cluster: []
+    cluster: ["v1/namespaces"]
 #     - [group/]version/resource
-    namespace: []
+    namespace: ["extensions/v1beta1/ingresses","v1/pods","apps/v1/deployments"]
 #     - [group/]version/resource
     path: kubernetes
 
@@ -170,7 +220,7 @@ logFormat: json
 # Number of OPA replicas to deploy. OPA maintains an eventually consistent
 # cache of policies and data. If you want high availability you can deploy two
 # or more replicas.
-replicas: 1
+replicas: 2
 
 # To control how the OPA is scheduled on the cluster, set the affinity,
 # tolerations and nodeSelector values below. For example, to deploy OPA onto
@@ -193,16 +243,31 @@ replicas: 1
 # nodeSelector:
 #   kubernetes.io/role: "master"
 affinity: {}
-tolerations: []
+tolerations: [
+  "- key: node-type",
+  "  operator: Equal",
+  "  value: apps",
+  "- key: node-type",
+  "  operator: Equal",
+  "  value: spare"
+]
+topologySpreadConstraings: []
 nodeSelector: {}
 
 # To control the CPU and memory resource limits and requests for OPA, set the
 # field below.
-resources: {}
+resources: {
+  requests:
+    cpu: 2
+    memory: 8Gi
+  limits:
+    cpu: 4
+    memory: 16Gi
+}
 
 rbac:
   # If true, create RBAC resources
-  create: true
+  create: false
 
 serviceAccount:
   # Specifies whether a ServiceAccount should be created
@@ -269,3 +334,38 @@ extraPorts: []
 #   protocol: TCP
 #   name: http
 #   targetPort: http
+
+topologySpreadConstraints:
+  - maxSkew: 1
+        topologyKey: admin-zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: opa
+opaViewer:
+  name: opa-viewer
+  roleRef: [
+    "apiGroup: rbac.authorization.k8s.io",
+    "kind: ClusterRole",
+    "name: view"]
+  subjects: [
+    "- kind: Group",
+    "  name: system:serviceaccounts:opa",
+    "  apiGroup: rbac.authorization.k8s.io"
+  ]
+
+configmapModifier:
+  rules: [
+  '- apiGroups: [""]',
+  '  resources: ["configmaps"]',
+  '  verbs: ["update", "patch"]'
+  ]
+  roleRef: [
+    "apiGroup: rbac.authorization.k8s.io",
+    "kind: Role",
+    "name: configmap-modifier"]
+  subjects: [
+    "- kind: Group",
+    "  name: system:serviceaccounts:opa",
+    "  apiGroup: rbac.authorization.k8s.io"
+  ]

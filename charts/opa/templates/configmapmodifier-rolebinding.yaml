@@ -1,0 +1,10 @@
+# Grant OPA/kube-mgmt role defined above.
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: opa
+  name: opa-configmap-modifier
+roleRef:
+{{ toYaml .Values.configmapModifier.roleRef | indent 4 }}
+subjects:
+{{ toYaml .Values.configmapModifier.subjects | indent 4 }}

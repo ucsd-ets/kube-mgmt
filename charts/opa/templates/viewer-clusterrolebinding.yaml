@@ -10,6 +10,6 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ .Values.opaViewer.name}} 
 roleRef:
-{{ toYaml .Values.opaViewer.roleRef | indent 4 }}
+{{ toYaml .Values.opaViewer.roleRef | indent 2 }}
 subjects:
-{{ toYaml .Values.opaViewer.subjects | indent 4 }}
+{{ toYaml .Values.opaViewer.subjects | indent 2 }}

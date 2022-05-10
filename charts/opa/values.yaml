@@ -170,12 +170,12 @@ extraArgs: [
 ]
 
 # Extra environment variables to be loaded into the OPA container
-extraEnv: [
-  "- name: AWSED_API_KEY", 
-  "  value: AWSEd api_key=clpecHRWI1d3NDNCX3NYKw",
-  "- name: AWSED_URL",
-  "  value: https://awsed.ucsd.edu"
-  ]
+extraEnv: 
+  - name: AWSED_API_KEY
+    value: AWSEd api_key=clpecHRWI1d3NDNCX3NYKw
+  - name: AWSED_URL
+    value: https://awsed.ucsd.edu
+  
 
 mgmt:
   enabled: false
@@ -186,14 +186,7 @@ mgmt:
   port: 8181
   extraArgs: []
   extraEnv: []
-  resources: {
-    requests:
-      cpu: 2
-      memory: 8Gi
-    limits:
-      cpu: 4
-      memory: 16Gi
-  }
+  resources: {requests:,cpu: 2,memory: 8Gi,limits:, cpu: 4, memory: 16Gi }
   data:
     enabled: false
   configmapPolicies:
@@ -256,14 +249,7 @@ nodeSelector: {}
 
 # To control the CPU and memory resource limits and requests for OPA, set the
 # field below.
-resources: {
-  requests:
-    cpu: 2
-    memory: 8Gi
-  limits:
-    cpu: 4
-    memory: 16Gi
-}
+resources: {requests:, cpu: 2, memory: 8Gi, limits:, cpu: 4,  memory: 16Gi}
 
 rbac:
   # If true, create RBAC resources
@@ -337,35 +323,34 @@ extraPorts: []
 
 topologySpreadConstraints:
   - maxSkew: 1
-        topologyKey: admin-zone
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: opa
+    topologyKey: admin-zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: opa
 opaViewer:
   name: opa-viewer
-  roleRef: [
-    "apiGroup: rbac.authorization.k8s.io",
-    "kind: ClusterRole",
-    "name: view"]
-  subjects: [
-    "- kind: Group",
-    "  name: system:serviceaccounts:opa",
-    "  apiGroup: rbac.authorization.k8s.io"
-  ]
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: view
+  subjects: 
+    - kind: Group
+      name: system:serviceaccounts:opa
+      apiGroup: rbac.authorization.k8s.io
 
 configmapModifier:
-  rules: [
-  '- apiGroups: [""]',
-  '  resources: ["configmaps"]',
-  '  verbs: ["update", "patch"]'
-  ]
-  roleRef: [
-    "apiGroup: rbac.authorization.k8s.io",
-    "kind: Role",
-    "name: configmap-modifier"]
-  subjects: [
-    "- kind: Group",
-    "  name: system:serviceaccounts:opa",
-    "  apiGroup: rbac.authorization.k8s.io"
-  ]
+  rules: 
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["update", "patch"]
+  
+  roleRef: 
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: configmap-modifier
+  subjects: 
+    - kind: Group
+      name: system:serviceaccounts:opa
+      apiGroup: rbac.authorization.k8s.io
+  

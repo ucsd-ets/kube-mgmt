@@ -5,6 +5,6 @@ metadata:
   namespace: opa
   name: opa-configmap-modifier
 roleRef:
-{{ toYaml .Values.configmapModifier.roleRef | indent 4 }}
+{{ toYaml .Values.configmapModifier.roleRef | indent 2 }}
 subjects:
-{{ toYaml .Values.configmapModifier.subjects | indent 4 }}
+{{ toYaml .Values.configmapModifier.subjects | indent 2 }}

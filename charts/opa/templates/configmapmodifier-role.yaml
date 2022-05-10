@@ -5,4 +5,4 @@ metadata:
   namespace: {{ template "opa.fullname" . }}
   name: configmap-modifier
 rules:
-{{ toYaml .Values.configmapModifier.rules | indent 4 }}
+{{ toYaml .Values.configmapModifier.rules | indent 2 }}

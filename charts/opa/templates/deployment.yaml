@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "opa.fullname" . }}
-  namespace: {{ template "opa.fullname" .}}
+  namespace: {{ .Values.namespace }}
   labels:
 {{ include "opa.labels.standard" . | indent 4 }}
 
@@ -85,9 +85,9 @@ spec:
 {{- end }}
       containers:
         - name: opa
-          ports:
-          - name: https
-            containerPort: {{ .Values.port }}
+          # ports:
+          # - name: https
+          #   containerPort: {{ .Values.port }}
 {{- if .Values.prometheus.enabled }}
           - name: http
             containerPort: {{ .Values.mgmt.port }}

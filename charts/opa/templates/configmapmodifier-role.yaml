@@ -2,7 +2,7 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  namespace: {{ template "opa.fullname" . }}
+  namespace: {{ .Values.namespace }}
   name: configmap-modifier
 rules:
 {{ toYaml .Values.configmapModifier.rules | indent 2 }}

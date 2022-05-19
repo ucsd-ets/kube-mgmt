@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bundle-server-chart.deployment.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bundle-server-chart.deployment.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bundle-server-chart.deployment.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: server
+        image: {{ .Values.deployment.image.repo }}:{{ .Values.deployment.image.version }} 
+        ports:
+        - containerPort: {{ .Values.deployment.port }}

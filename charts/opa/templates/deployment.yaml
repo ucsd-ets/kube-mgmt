@@ -85,9 +85,9 @@ spec:
 {{- end }}
       containers:
         - name: opa
-          # ports:
-          # - name: https
-          #   containerPort: {{ .Values.port }}
+          ports:
+          - name: https
+            containerPort: {{ .Values.port }}
 {{- if .Values.prometheus.enabled }}
           - name: http
             containerPort: {{ .Values.mgmt.port }}

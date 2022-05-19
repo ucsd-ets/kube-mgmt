@@ -43,77 +43,77 @@ webhooks:
     timeoutSeconds: {{ .Values.timeoutSeconds }}
 {{- end }}
 {{- end }}
-# ---
-# {{- if .Values.certManager.enabled }}
-# # Create a selfsigned Issuer, in order to create a root CA certificate for
-# # signing webhook serving certificates
-# apiVersion: {{ include "opa.certManagerApiVersion" . }}
-# kind: Issuer
-# metadata:
-# {{- if .Values.admissionController.mutating.annotations }}
-#   annotations:
-# {{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
-# {{- end }}
-#   name: {{ include "opa.selfSignedIssuer" . }}
-#   labels:
-# {{ include "opa.labels.standard" . | indent 4 }}
-# spec:
-#   selfSigned: {}
-# ---
-# # Generate a CA Certificate used to sign certificates for the webhook
-# apiVersion: {{ include "opa.certManagerApiVersion" . }}
-# kind: Certificate
-# metadata:
-# {{- if .Values.admissionController.mutating.annotations }}
-#   annotations:
-# {{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
-# {{- end }}
-#   name: {{ include "opa.rootCACertificate" . }}
-#   labels:
-# {{ include "opa.labels.standard" . | indent 4 }}
-# spec:
-#   secretName: {{ include "opa.rootCACertificate" . }}
-#   duration: {{ .Values.certManager.rootCACertificateDuration | quote }}
-#   issuerRef:
-#     name: {{ include "opa.selfSignedIssuer" . }}
-#   commonName: "ca.webhook.opa"
-#   isCA: true
-# ---
-# # Create an Issuer that uses the above generated CA certificate to issue certs
-# apiVersion: {{ include "opa.certManagerApiVersion" . }}
-# kind: Issuer
-# metadata:
-# {{- if .Values.admissionController.mutating.annotations }}
-#   annotations:
-# {{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
-# {{- end }}
-#   name: {{ include "opa.rootCAIssuer" . }}
-#   labels:
-# {{ include "opa.labels.standard" . | indent 4 }}
-# spec:
-#   ca:
-#     secretName: {{ include "opa.rootCACertificate" . }}
-# ---
-# # Finally, generate a serving certificate for the webhook to use
-# apiVersion: {{ include "opa.certManagerApiVersion" . }}
-# kind: Certificate
-# metadata:
-# {{- if .Values.admissionController.mutating.annotations }}
-#   annotations:
-# {{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
-# {{- end }}
-#   name: {{ include "opa.servingCertificate" . }}
-#   labels:
-# {{ include "opa.labels.standard" . | indent 4 }}
-# spec:
-#   secretName: {{ template "opa.fullname" . }}-cert
-#   duration: {{ .Values.certManager.servingCertificateDuration | quote }}
-#   issuerRef:
-#     name: {{ include "opa.rootCAIssuer" . }}
-#   dnsNames:
-#   - {{ include "opa.fullname" . }}
-#   - {{ include "opa.fullname" . }}.{{ .Values.namespace }}
-#   - {{ include "opa.fullname" . }}.{{ .Values.namespace }}.svc
+---
+{{- if .Values.certManager.enabled }}
+# Create a selfsigned Issuer, in order to create a root CA certificate for
+# signing webhook serving certificates
+apiVersion: {{ include "opa.certManagerApiVersion" . }}
+kind: Issuer
+metadata:
+{{- if .Values.admissionController.mutating.annotations }}
+  annotations:
+{{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
+{{- end }}
+  name: {{ include "opa.selfSignedIssuer" . }}
+  labels:
+{{ include "opa.labels.standard" . | indent 4 }}
+spec:
+  selfSigned: {}
+---
+# Generate a CA Certificate used to sign certificates for the webhook
+apiVersion: {{ include "opa.certManagerApiVersion" . }}
+kind: Certificate
+metadata:
+{{- if .Values.admissionController.mutating.annotations }}
+  annotations:
+{{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
+{{- end }}
+  name: {{ include "opa.rootCACertificate" . }}
+  labels:
+{{ include "opa.labels.standard" . | indent 4 }}
+spec:
+  secretName: {{ include "opa.rootCACertificate" . }}
+  duration: {{ .Values.certManager.rootCACertificateDuration | quote }}
+  issuerRef:
+    name: {{ include "opa.selfSignedIssuer" . }}
+  commonName: "ca.webhook.opa"
+  isCA: true
+---
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: {{ include "opa.certManagerApiVersion" . }}
+kind: Issuer
+metadata:
+{{- if .Values.admissionController.mutating.annotations }}
+  annotations:
+{{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
+{{- end }}
+  name: {{ include "opa.rootCAIssuer" . }}
+  labels:
+{{ include "opa.labels.standard" . | indent 4 }}
+spec:
+  ca:
+    secretName: {{ include "opa.rootCACertificate" . }}
+---
+# Finally, generate a serving certificate for the webhook to use
+apiVersion: {{ include "opa.certManagerApiVersion" . }}
+kind: Certificate
+metadata:
+{{- if .Values.admissionController.mutating.annotations }}
+  annotations:
+{{ toYaml .Values.admissionController.mutating.annotations | indent 4 }}
+{{- end }}
+  name: {{ include "opa.servingCertificate" . }}
+  labels:
+{{ include "opa.labels.standard" . | indent 4 }}
+spec:
+  secretName: {{ template "opa.fullname" . }}-cert
+  duration: {{ .Values.certManager.servingCertificateDuration | quote }}
+  issuerRef:
+    name: {{ include "opa.rootCAIssuer" . }}
+  dnsNames:
+  - {{ include "opa.fullname" . }}
+  - {{ include "opa.fullname" . }}.{{ .Values.namespace }}
+  - {{ include "opa.fullname" . }}.{{ .Values.namespace }}.svc
 # following already exists in webhook and doesn't need to be repeated. TODO: Move it to a seperate secret.yaml file
 # {{- else }}
 # apiVersion: v1

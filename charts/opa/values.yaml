@@ -5,15 +5,15 @@
 # Use 'opa: false' to disable the OPA configuration and rely on configmaps for policy loading.
 # See https://www.openpolicyagent.org/docs/latest/kubernetes-admission-control/#3-deploy-opa-on-top-of-kubernetes and the `mgmt.configmapPolicies` section below for more details.
 namespace: opa
-opa: false
-  # services:
-  #   controller:
-  #     url: 'https://www.openpolicyagent.org'
-  # bundles:
-  #   quickstart:
-  #     service: controller
-  #     resource: /bundles/helm-kubernetes-quickstart
-  # default_decision: /helm_kubernetes_quickstart/main
+opa: 
+  services:
+    controller:
+      url: 'http://bundle-service:5000'
+  bundles:
+    quickstart:
+      service: controller
+      resource: /bundle.tar.gz
+  default_decision: /system/main
 
 # Setup the webhook using cert-manager
 certManager:
@@ -54,7 +54,7 @@ bootstrapPolicies: {}
 # Admission controller configuration.
 admissionController:
   mutating:
-    enabled: false
+    enabled: true
 
     # To enforce mutating policies, change to MutatingWebhookConfiguration.
     kind: MutatingWebhookConfiguration
@@ -65,7 +65,7 @@ admissionController:
 
     # To _fail closed_ on failures, change to Fail. During initial testing, we
     # recommend leaving the failure policy as Ignore.
-    failurePolicy: Fail
+    failurePolicy: Ignore
 
     # Adds a namespace selector to the admission controller webhook
     namespaceSelector:
@@ -88,7 +88,7 @@ admissionController:
 
   validating:
   
-    enabled: false
+    enabled: true
 
     # To enforce mutating policies, change to MutatingWebhookConfiguration.
     kind: ValidatingWebhookConfiguration
@@ -99,7 +99,7 @@ admissionController:
 
     # To _fail closed_ on failures, change to Fail. During initial testing, we
     # recommend leaving the failure policy as Ignore.
-    failurePolicy: Fail
+    failurePolicy: Ignore
 
     # Adds a namespace selector to the admission controller webhook
     namespaceSelector:
@@ -133,11 +133,11 @@ admissionController:
 # communicate with the OPA.
 generateCerts: false
 #uses ca cert
-CA: ""
+CA: 
 #TODO: get cert and key to work using non-encoded cert/key and have secret/deployments encode
 # uses server cert and key
-cert: ""
-key: ""
+cert: 
+key: 
 
 # Controls a PodDisruptionBudget for the OPA pod. Suggested use if having opa
 # always running for admission control is important
@@ -177,7 +177,6 @@ extraArgs: [
 extraEnv: 
   - name: AWSED_API_KEY
     value: ""
-    
   - name: AWSED_URL
     value: ""
   

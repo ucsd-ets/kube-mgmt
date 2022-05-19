@@ -49,6 +49,7 @@ app: {{ template "opa.fullname" . }}
 chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 release: "{{ .Release.Name }}"
 heritage: "{{ .Release.Service }}"
+
 {{- end -}}
 
 {{/*

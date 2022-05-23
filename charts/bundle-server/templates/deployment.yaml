@@ -18,5 +18,17 @@ spec:
       containers:
       - name: server
         image: {{ .Values.deployment.image.repo }}:{{ .Values.deployment.image.version }} 
+        command: ["/bin/bash"]
+        args: ["-c", "cd /bundle-files && for file in *; do base64 -d $file > /usr/share/nginx/html/$file; done && /docker-entrypoint.sh nginx -g 'daemon off;'"]
         ports:
         - containerPort: {{ .Values.deployment.port }}
+        volumeMounts:
+        - mountPath: {{ .Values.deployment.volume.app.path }}
+          name: {{ .Values.deployment.volume.app.name }}
+      volumes:
+      - name: {{ .Values.deployment.volume.app.name }}
+        configMap:
+          name: {{ .Values.configmap.name}}
+          items:
+          - key: {{ .Values.configmap.bundle.key }}
+            path: {{ .Values.configmap.bundle.path }}

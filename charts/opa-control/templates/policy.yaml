@@ -2,7 +2,7 @@ apiVersion: k8s.nginx.org/v1
 kind: Policy
 metadata:
   name: {{ .Values.ipPolicy.name }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.global.namespace }}
 spec:
   accessControl:
     allow:

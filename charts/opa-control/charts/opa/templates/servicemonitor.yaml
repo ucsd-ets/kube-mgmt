@@ -23,7 +23,7 @@ spec:
   jobLabel: {{ template "opa.fullname" . }}
   namespaceSelector:
     matchNames:
-    - {{ .Values.namespace }}
+    - {{ .Values.global.namespace }}
   selector:
     matchLabels:
       app: {{ template "opa.fullname" . }}

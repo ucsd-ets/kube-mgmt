@@ -1,4 +1,4 @@
-{{- $cn := printf "%s.%s.svc" ( include "opa.fullname" . ) .Values.Namespace }}
+{{- $cn := printf "%s.%s.svc" ( include "opa.fullname" . ) .Values.global.namespace }}
 {{- $ca := genCA "opa-admission-ca" 3650 -}}
 {{- $cert := genSignedCert $cn nil (list $cn) 3650 $ca -}}
 {{- if .Values.admissionController.validating.enabled }}
@@ -6,7 +6,7 @@ kind: {{ .Values.admissionController.validating.kind }}
 apiVersion: {{ include "opa.admissionregistrationApiVersion" . }}
 metadata:
   name: {{ template "opa.fullname" . }}-validating
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.global.namespace }}
   annotations:
 {{- if .Values.certManager.enabled }}
     certmanager.k8s.io/inject-ca-from: {{ printf "%s/%s" .Release.Namespace (include "opa.rootCACertificate" .) | quote }}
@@ -37,7 +37,7 @@ webhooks:
 {{- end }}
       service:
         name: {{ template "opa.fullname" . }}
-        namespace: {{ .Values.namespace }}
+        namespace: {{ .Values.global.namespace }}
     sideEffects: {{ .Values.admissionController.validating.sideEffect }}
 {{- if .Values.timeoutSeconds }}
     timeoutSeconds: {{ .Values.timeoutSeconds }}
@@ -112,8 +112,8 @@ webhooks:
 #     name: {{ include "opa.rootCAIssuer" . }}
 #   dnsNames:
 #   - {{ include "opa.fullname" . }}
-#   - {{ include "opa.fullname" . }}.{{ .Values.Namespace }}
-#   - {{ include "opa.fullname" . }}.{{ .Values.Namespace }}.svc
+#   - {{ include "opa.fullname" . }}.{{ .Values.global.namespace }}
+#   - {{ include "opa.fullname" . }}.{{ .Values.global.namespace }}.svc
 # {{- else }}
 # apiVersion: v1
 # kind: Secret

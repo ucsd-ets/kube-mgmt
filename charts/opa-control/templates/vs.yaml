@@ -6,14 +6,14 @@ metadata:
 spec:
   host: {{ .Values.vs.host }}
   policies:
-  - name: {{ .Values.ipPolicy.name }}
+  #- name: {{ .Values.ipPolicy.name }}
   tls:
     secret: {{ .Values.tls.name }}
   upstreams:
-  - name: {{ .Values.opa.fullnameOverride }}
-    service: {{ .Values.opa.fullnameOverride }}
-    port: {{ .Values.opa.port }}
+  - name: {{ .Values.opa_base.fullnameOverride }}
+    service: {{ .Values.opa_base.fullnameOverride }}
+    port: {{ .Values.opa_base.port }}
   routes:
     - path: {{ .Values.vs.path }}
       action:
-        pass: {{ .Values.opa.fullnameOverride }}
+        pass: {{ .Values.opa_base.fullnameOverride }}

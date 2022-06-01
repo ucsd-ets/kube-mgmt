@@ -1,58 +1,58 @@
 {{- $cn := printf "%s.%s.svc" ( include "opa.fullname" . ) .Values.global.namespace }}
 {{- $ca := genCA "opa-admission-ca" 3650 -}}
 {{- $cert := genSignedCert $cn nil (list $cn) 3650 $ca -}}
-{{- if .Values.admissionController.validating.enabled }}
-kind: {{ .Values.admissionController.validating.kind }}
+{{- if .Values.global.admissionController.enabled }}
+kind: {{ .Values.admissionController.kind }}
 apiVersion: {{ include "opa.admissionregistrationApiVersion" . }}
 metadata:
-  name: {{ template "opa.fullname" . }}-validating
+  name: {{ template "opa.fullname" . }}-mutating
   namespace: {{ .Values.global.namespace }}
   annotations:
-{{- if .Values.certManager.enabled }}
+{{- if .Values.global.certManager.enabled }}
     certmanager.k8s.io/inject-ca-from: {{ printf "%s/%s" .Release.Namespace (include "opa.rootCACertificate" .) | quote }}
     cert-manager.io/inject-ca-from: {{ printf "%s/%s" .Release.Namespace (include "opa.rootCACertificate" .) | quote }}
 {{- end }}
-{{- if .Values.admissionController.validating.annotations }}
-{{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+{{- if .Values.global.admissionController.annotations }}
+{{ toYaml .Values.global.admissionController.annotations | indent 4 }}
 {{- end }}
   labels:
 {{ include "opa.labels.standard" . | indent 4 }}
 webhooks:
-  - name: validating-webhook.openpolicyagent.org
+  - name: mutating-webhook.openpolicyagent.org
     admissionReviewVersions: ["v1beta1"]
-{{- with .Values.admissionController.validating.namespaceSelector }}
+{{- with .Values.global.admissionController.namespaceSelector }}
     namespaceSelector:
 {{ toYaml . | indent 6 }}
 {{ end }}
-    failurePolicy: {{ .Values.admissionController.validating.failurePolicy }}
+    failurePolicy: {{ .Values.global.admissionController.failurePolicy }}
     rules:
-{{ toYaml .Values.admissionController.validating.rules | indent 6 }}
+{{ toYaml .Values.global.admissionController.rules | indent 6 }}
     clientConfig:
-{{- if not .Values.certManager.enabled }}
-{{- if .Values.generateCerts }}
+{{- if not .Values.global.certManager.enabled }}
+{{- if .Values.global.generateCerts }}
       caBundle: {{ b64enc $ca.Cert }}
 {{- else }}
-      caBundle: {{ .Values.CA }}
+      caBundle: {{ .Values.global.CA }}
 {{- end }}
 {{- end }}
       service:
         name: {{ template "opa.fullname" . }}
         namespace: {{ .Values.global.namespace }}
-    sideEffects: {{ .Values.admissionController.validating.sideEffect }}
+    sideEffects: {{ .Values.global.admissionController.sideEffect }}
 {{- if .Values.timeoutSeconds }}
     timeoutSeconds: {{ .Values.timeoutSeconds }}
 {{- end }}
 {{- end }}
----
-# {{- if .Values.certManager.enabled }}
+# ---
+# {{- if .Values.global.certManager.enabled }}
 # # Create a selfsigned Issuer, in order to create a root CA certificate for
 # # signing webhook serving certificates
 # apiVersion: {{ include "opa.certManagerApiVersion" . }}
 # kind: Issuer
 # metadata:
-# {{- if .Values.admissionController.validating.annotations }}
+# {{- if .Values.global.admissionController.annotations }}
 #   annotations:
-# {{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+# {{ toYaml .Values.global.admissionController.annotations | indent 4 }}
 # {{- end }}
 #   name: {{ include "opa.selfSignedIssuer" . }}
 #   labels:
@@ -64,16 +64,16 @@ webhooks:
 # apiVersion: {{ include "opa.certManagerApiVersion" . }}
 # kind: Certificate
 # metadata:
-# {{- if .Values.admissionController.validating.annotations }}
+# {{- if .Values.global.admissionController.annotations }}
 #   annotations:
-# {{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+# {{ toYaml .Values.global.admissionController.annotations | indent 4 }}
 # {{- end }}
 #   name: {{ include "opa.rootCACertificate" . }}
 #   labels:
 # {{ include "opa.labels.standard" . | indent 4 }}
 # spec:
 #   secretName: {{ include "opa.rootCACertificate" . }}
-#   duration: {{ .Values.certManager.rootCACertificateDuration | quote }}
+#   duration: {{ .Values.global.certManager.rootCACertificateDuration | quote }}
 #   issuerRef:
 #     name: {{ include "opa.selfSignedIssuer" . }}
 #   commonName: "ca.webhook.opa"
@@ -83,9 +83,9 @@ webhooks:
 # apiVersion: {{ include "opa.certManagerApiVersion" . }}
 # kind: Issuer
 # metadata:
-# {{- if .Values.admissionController.validating.annotations }}
+# {{- if .Values.global.admissionController.annotations }}
 #   annotations:
-# {{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+# {{ toYaml .Values.global.admissionController.annotations | indent 4 }}
 # {{- end }}
 #   name: {{ include "opa.rootCAIssuer" . }}
 #   labels:
@@ -98,44 +98,21 @@ webhooks:
 # apiVersion: {{ include "opa.certManagerApiVersion" . }}
 # kind: Certificate
 # metadata:
-# {{- if .Values.admissionController.validating.annotations }}
+# {{- if .Values.global.admissionController.annotations }}
 #   annotations:
-# {{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+# {{ toYaml .Values.global.admissionController.annotations | indent 4 }}
 # {{- end }}
 #   name: {{ include "opa.servingCertificate" . }}
 #   labels:
 # {{ include "opa.labels.standard" . | indent 4 }}
 # spec:
 #   secretName: {{ template "opa.fullname" . }}-cert
-#   duration: {{ .Values.certManager.servingCertificateDuration | quote }}
+#   duration: {{ .Values.global.certManager.servingCertificateDuration | quote }}
 #   issuerRef:
 #     name: {{ include "opa.rootCAIssuer" . }}
 #   dnsNames:
 #   - {{ include "opa.fullname" . }}
 #   - {{ include "opa.fullname" . }}.{{ .Values.global.namespace }}
 #   - {{ include "opa.fullname" . }}.{{ .Values.global.namespace }}.svc
-# {{- else }}
-# apiVersion: v1
-# kind: Secret
-# metadata:
-# {{- if .Values.admissionController.validating.annotations }}
-#   annotations:
-# {{ toYaml .Values.admissionController.validating.annotations | indent 4 }}
+# following already exists in webhook and doesn't need to be repeated. TODO: Move it to a seperate secret.yaml file
 # {{- end }}
-#   name: {{ template "opa.fullname" . }}-cert
-#   labels:
-#     app: {{ template "opa.fullname" . }}
-#     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-#     release: "{{ .Release.Name }}"
-#     heritage: "{{ .Release.Service }}"
-# type: Opaque
-# data:
-# {{- if .Values.generateCerts }}
-#   tls.crt: {{ b64enc $cert.Cert }}
-#   tls.key: {{ b64enc $cert.Key }}
-# {{- else }}
-#   tls.crt: {{ .Values.cert }}
-#   tls.key: {{ .Values.key }}
-# {{- end }}
-# {{- end }}
-

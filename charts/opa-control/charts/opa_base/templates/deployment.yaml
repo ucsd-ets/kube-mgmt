@@ -17,9 +17,9 @@ spec:
   {{- end }}
   template:
     metadata:
-{{- if or .Values.generateCerts .Values.opa }}
+{{- if or .Values.global.generateCerts .Values.opa }}
       annotations:
-{{- if .Values.generateCerts }}
+{{- if .Values.global.generateCerts }}
         checksum/certs: {{ include (print $.Template.BasePath "/webhookconfiguration.yaml") . | sha256sum }}
 {{- end }}
 {{- if .Values.opa }}
@@ -238,7 +238,7 @@ spec:
 {{ toYaml .Values.nodeSelector | indent 8 }}
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
-{{- with .Values.admissionController.mutating.topologySpreadConstraints }}
+{{- with .Values.global.admissionController.topologySpreadConstraints }}
     topologySpreadConstraints:
 {{ toYaml . | indent 8 }}
 {{ end }}

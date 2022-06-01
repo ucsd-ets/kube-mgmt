@@ -2,4 +2,5 @@ bin
 .go
 *.tgz
 values.yaml
+*.gz
 

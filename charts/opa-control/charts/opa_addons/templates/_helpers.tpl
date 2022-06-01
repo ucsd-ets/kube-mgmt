@@ -1,11 +1,3 @@
-{{/* vim: set filetype=mustache: */}}
-{{/*
-Expand the name of the chart.
-*/}}
-{{- define "opa.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
@@ -24,23 +16,6 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "opa.sarfullname" -}}
-{{- $name := (include "opa.fullname" . | trunc 59 | trimSuffix "-") -}}
-{{- printf "%s-sar" $name -}}
-{{- end -}}
-
-{{- define "opa.mgmtfullname" -}}
-{{- $name := (include "opa.fullname" . | trunc 58 | trimSuffix "-") -}}
-{{- printf "%s-mgmt" $name -}}
-{{- end -}}
-
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "opa.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{/*
 Define standard labels for frequently used metadata.
 */}}
@@ -53,27 +28,27 @@ heritage: "{{ .Release.Service }}"
 {{- end -}}
 
 
-{{- define "opa.selfSignedIssuer" -}}
+{* {{- define "opa.selfSignedIssuer" -}}
 {{ printf "%s-selfsign" (include "opa.fullname" .) }}
-{{- end -}}
+{{- end -}} *}
 
-{{- define "opa.rootCAIssuer" -}}
+{* {{- define "opa.rootCAIssuer" -}}
 {{ printf "%s-ca" (include "opa.fullname" .) }}
-{{- end -}}
+{{- end -}} *}
 
 {{- define "opa.rootCACertificate" -}}
 {{ printf "%s-ca" (include "opa.fullname" .) }}
 {{- end -}}
 
-{{- define "opa.servingCertificate" -}}
+{* {{- define "opa.servingCertificate" -}}
 {{ printf "%s-webhook-tls" (include "opa.fullname" .) }}
-{{- end -}}
+{{- end -}} *}
 
 {{/*
 Detect the version of cert manager crd that is installed
 Error if CRD is not available
 */}}
-{{- define "opa.certManagerApiVersion" -}}
+{* {{- define "opa.certManagerApiVersion" -}}
 {{- if (.Capabilities.APIVersions.Has "cert-manager.io/v1") -}}
 cert-manager.io/v1
 {{- else if (.Capabilities.APIVersions.Has "cert-manager.io/v1beta1") -}}
@@ -81,7 +56,7 @@ cert-manager.io/v1beta1
 {{- else  -}}
 {{- fail "cert-manager CRD does not appear to be installed" }}
 {{- end -}}
-{{- end -}}
+{{- end -}} *}
 
 {{/*
 Detect the available version of admissionregistration

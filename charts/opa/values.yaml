@@ -255,7 +255,6 @@ tolerations:
   operator: Equal
   value: spare
 
-topologySpreadConstraings: []
 nodeSelector: {}
 
 # To control the CPU and memory resource limits and requests for OPA, set the

@@ -3,6 +3,7 @@ vs:
   name: bundle-vs
   host: dsmlp.opa-dev.ucsd.edu
   path: /
+  enabled: true
 
 tls:
   name: bundle-tls
@@ -12,6 +13,7 @@ tls:
 
 #update ipPolicy with actual name/ip values
 ipPolicy:
+  enabled: false
   name: allow
   whitelist: 
   - "7.3.2.1/8"
@@ -29,7 +31,6 @@ global:
     rootCACertificateDuration: 43800h # 5y
     servingCertificateDuration: 8760h # 1y
   admissionController:    
-    enabled: true
     # To set annotations on all admissionController resources (Secret/Certificate/Issuer/AdmissionController)
     # annotations:
     #   example: value
@@ -60,7 +61,6 @@ global:
   generateCerts: false
   #uses ca cert
   CA: 
-
 
 # values for bundle chart
 bundle:
@@ -138,12 +138,6 @@ opa_base:
   #     package system.log
   #     mask["/input"]
   bootstrapPolicies: {}
-
-  # Admission controller configuration.
-  admissionController:    
-    # To enforce mutating policies, change to MutatingWebhookConfiguration.
-    kind: ValidatingWebhookConfiguration
-
   # The helm Chart will automatically generate a CA and server certificate for
   # the OPA. If you want to supply your own certificates, set the field below to
   # false and add the PEM encoded CA certificate and server key pair below.
@@ -371,8 +365,15 @@ opa_base:
 #values for opa_addons chart
 opa_addons:
 
-  admissionController:    
+  admissionControllers:
+  - enabled: true    
     kind: MutatingWebhookConfiguration
+    name: mutating-webhook.openpolicyagent.org
+    nameA: mutate
+  - enabled: true
+    kind: ValidatingWebhookConfiguration
+    name: validating-webhook.openpolicyagent.org
+    nameA: validate
   configmapModifier:
     rules: 
     - apiGroups: [""]

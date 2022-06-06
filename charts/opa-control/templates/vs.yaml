@@ -1,3 +1,4 @@
+{{- if .Values.vs.enabled }}
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServer
 metadata:
@@ -5,15 +6,18 @@ metadata:
   namespace: {{ .Values.global.namespace }}
 spec:
   host: {{ .Values.vs.host }}
+{{- if .Values.ipPolicy.enabled }}
   policies:
-  #- name: {{ .Values.ipPolicy.name }}
+  - name: {{ .Values.ipPolicy.name }}
+{{- end }}
   tls:
     secret: {{ .Values.tls.name }}
   upstreams:
-  - name: {{ .Values.opa_base.fullnameOverride }}
-    service: {{ .Values.opa_base.fullnameOverride }}
+  - name: {{ .Values.global.fullnameOverride }}
+    service: {{ .Values.global.fullnameOverride }}
     port: {{ .Values.opa_base.port }}
   routes:
     - path: {{ .Values.vs.path }}
       action:
-        pass: {{ .Values.opa_base.fullnameOverride }}
+        pass: {{ .Values.global.fullnameOverride }}
+{{- end }}

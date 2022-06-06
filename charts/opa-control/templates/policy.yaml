@@ -1,3 +1,4 @@
+{{- if .Values.ipPolicy.enabled }}
 apiVersion: k8s.nginx.org/v1
 kind: Policy
 metadata:
@@ -7,3 +8,4 @@ spec:
   accessControl:
     allow:
 {{ toYaml .Values.ipPolicy.whitelist | indent 6}}
+{{- end }}

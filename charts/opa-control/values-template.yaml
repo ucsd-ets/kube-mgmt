@@ -84,6 +84,23 @@ bundle:
         nfs:
           server: its-dsmlpdev-fs01.ucsd.edu
           path: /export/apps/opa-bundles
+  replicas: 1
+  affinity: {}
+  tolerations:
+  # - key: node-type
+  #   operator: Equal
+  #   value: apps
+  # - key: node-type
+  #   operator: Equal
+  #   value: spare
+  topologySpreadConstraints:
+  # - maxSkew: 1
+  #   topologyKey: admin-zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app: opa
+  nodeSelector: {}
 
 # values for opa_base chart
 opa_base:
@@ -262,12 +279,12 @@ opa_base:
   #   kubernetes.io/role: "master"
   affinity: {}
   tolerations: 
-  - key: node-type
-    operator: Equal
-    value: apps
-  - key: node-type
-    operator: Equal
-    value: spare
+  # - key: node-type
+  #   operator: Equal
+  #   value: apps
+  # - key: node-type
+  #   operator: Equal
+  #   value: spare
 
   topologySpreadConstraings: []
   nodeSelector: {}

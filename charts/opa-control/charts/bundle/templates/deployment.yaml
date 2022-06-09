@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "bundle-server-chart.deployment.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.deployment.replicaCount }}
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       {{- include "bundle-server-chart.deployment.labels" . | nindent 6 }}
@@ -28,3 +28,11 @@ spec:
         nfs:
           server: {{ .Values.deployment.volume.app.nfs.server }}
           path: {{ .Values.deployment.volume.app.nfs.path }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+      topologySpreadConstraints:
+{{ toYaml .Values.topologySpreadConstraints | indent 8 }}

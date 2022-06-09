@@ -238,7 +238,5 @@ spec:
 {{ toYaml .Values.nodeSelector | indent 8 }}
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
-{{- with .Values.global.admissionController.topologySpreadConstraints }}
-    topologySpreadConstraints:
-{{ toYaml . | indent 8 }}
-{{ end }}
+      topologySpreadConstraints:
+{{ toYaml .Values.topologySpreadConstraints | indent 8 }}

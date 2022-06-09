@@ -6,7 +6,7 @@
 kind: {{ .kind }}
 apiVersion: {{ include "opa.admissionregistrationApiVersion" $ }}
 metadata:
-  name: {{ .nameA }}
+  name: {{ .hookName }}
   namespace: {{ $.Values.global.namespace }}
   annotations:
 {{- if $.Values.global.certManager.enabled }}

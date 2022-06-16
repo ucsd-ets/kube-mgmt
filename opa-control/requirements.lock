@@ -1,0 +1,6 @@
+dependencies:
+- name: opa
+  repository: https://open-policy-agent.github.io/kube-mgmt/charts
+  version: 4.1.1
+digest: sha256:5509db1f35bc742b8f56be6083f991091c5622999c03fb0d4d8a41d6310fb3fe
+generated: "2022-06-16T10:16:32.289836-07:00"

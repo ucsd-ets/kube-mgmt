@@ -25,9 +25,14 @@ spec:
           name: {{ .Values.deployment.volume.app.name }}
       volumes:
       - name: {{ .Values.deployment.volume.app.name }}
+      {{- if eq .Values.deployment.volume.app.type "nfs" }}
         nfs:
           server: {{ .Values.deployment.volume.app.nfs.server }}
           path: {{ .Values.deployment.volume.app.nfs.path }}
+      {{- else if eq .Values.deployment.volume.app.type "hostPath" }}
+        hostPath:
+          path: {{ .Values.deployment.volume.app.hostPath.path }}
+      {{- end}}
       affinity:
 {{ toYaml .Values.affinity | indent 8 }}
       nodeSelector:

@@ -4,3 +4,4 @@ bin
 values.yaml
 *.gz
 TODO.md
+keys/
